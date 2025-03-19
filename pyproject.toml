@@ -1,0 +1,31 @@
+
+[project]
+name = "noFFT"
+version = "0.0.1"
+authors = [
+  { name="Alexandre R.J. Francois", email="alexandrefrancois@gmail.com" },
+]
+description = "A reference implementation of the Resonate algorithm in C++ for Python."
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: MacOS",
+]
+license = {file = "LICENSE"}
+
+[project.urls]
+Homepage = "https://github.com/alexandrefrancois/noFFT"
+Issues = "https://github.com/alexandrefrancois/noFFT/issues"
+
+
+[build-system]
+requires = [
+    "setuptools>=61.0",
+    "pybind11>=2.10.0",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.cibuildwheel]
+test-command = "python {project}/tests/test.py"
+test-skip = "*universal2:arm64"
