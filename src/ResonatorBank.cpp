@@ -28,7 +28,7 @@ SOFTWARE.
 
 using namespace resonate;
 
-constexpr float PI = 3.14159274101257324219;
+constexpr float PI = 3.14159265358979323846;
 constexpr float twoPi = 2.0 * PI;
 
 ResonatorBank::ResonatorBank(size_t numResonators, const float *frequencies, const float *alphas, const float *betas, float sampleRate)
