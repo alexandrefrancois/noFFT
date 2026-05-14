@@ -25,10 +25,12 @@ The C++ code implements a resonator bank class similar to that provided in the
 with vectorized update per sample.
 
 Python functions:
+
 - `resonate`: wraps creating the bank with the parameters provided and running the updates for an input signal.
 - `resonate_wrapper`: computes a resonator bank outputs from an input signal, using the C++ implementation.
 - `resonate_python`: computes a resonator bank outputs from a single frequency sinusoidal input signal (impulse). The loop over samples is done in Python, so much slower than the C++ counterpart.
-
+- `resonate_python_phase`: computes a resonator bank outputs from an input signal; maintains the current value multiplied by conjugate of previous for delta-phase. Returns smoothed complex values from which to compute power/magnitude and phase, also returns conjugate product from which to compute delta-phase.
+- `resonate_python_phase_frequency`: calls `resonate_python_phase` with a single frequency sinusoidal input signal (step).
 
 ## Jupyter Notebooks
 
@@ -36,10 +38,10 @@ Python functions:
 - **Spectrograms**: code to compute and plot spectrograms of audio signals, using [Librosa](https://librosa.org)
 - **Chromas**: code to compute and plot chromas and chromagrams on audio signals, using [Librosa](https://librosa.org)
 - **MFCCs**: code to compute and plot mel frequency scale spectrograms and chromagrams on audio signals, using [Librosa](https://librosa.org)
-
+- **Phases**: code to illustrate instantaneous frequency estimation, tracking resonators and resonator banks, super-resolution spectrograms and synthesis with optional frequency and time manipulations.
 
 ## License
 
 MIT License
 
-Copyright (c) 2025 Alexandre R.J. Francois
+Copyright (c) 2025-2026 Alexandre R.J. Francois
