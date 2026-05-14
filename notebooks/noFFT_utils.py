@@ -76,3 +76,89 @@ def frequency_sweep(frequencies, alphas, sr):
 		areas_p[idx] = np.sum(r[-1], axis=0)
 	return 0.25 / np.sqrt(areas_p)
 
+def generate_signal(frequencies: list[float], durations: list[float], transition_duration: float, sr: float) -> np.ndarray:
+    """
+    Generates a continuous signal composed of sinusoidal segments with smooth 
+    frequency transitions, using a single transition duration for all segments.
+
+    Args:
+        frequencies: List of segment frequencies (in Hz).
+        durations: List of segment steady-state durations (in seconds).
+        transition_duration: The duration for ALL transitions between segments (in seconds).
+        sr: The sampling rate (in samples per second).
+
+    Returns:
+        A continuous 1D NumPy array representing the generated signal.
+    """
+    
+    # 1. Input Validation (Ensure arrays have the same size)
+    n_segments = len(frequencies)
+    if n_segments != len(durations):
+        raise ValueError("Input arrays (frequencies and durations) must have the same size.")
+    
+    all_samples = []
+
+    # Initialize phase for continuity
+    current_phase = 0.0
+
+    # Iterate through segments
+    for i in range(n_segments):
+        f1 = frequencies[i]
+        t_steady = durations[i]
+        
+        # --- 2. Segment Generation (Steady State) ---
+        
+        # Calculate time vector for the steady-state segment
+        t_steady_vec = np.arange(0, t_steady, 1.0 / sr)
+        
+        # Generate the segment signal using the constant frequency f1
+        segment_signal = np.sin(2 * np.pi * f1 * t_steady_vec + current_phase)
+        all_samples.append(segment_signal)
+        
+        # Update phase for the next part (end of steady state segment)
+        if len(t_steady_vec) > 0:
+            current_phase = (2 * np.pi * f1 * t_steady_vec[-1] + current_phase) % (2 * np.pi)
+        
+        # --- 3. Transition Generation (If not the last segment) ---
+        
+        # Apply the single transition duration parameter here
+        t_transition = transition_duration
+        
+        if i < n_segments - 1:
+            f2 = frequencies[i + 1]
+            
+            if t_transition > 0:
+                # Calculate time vector for the transition
+                t_trans_vec = np.arange(0, t_transition, 1.0 / sr)
+                
+                # Frequency sweep function: linear interpolation from f1 to f2
+                # f(t) = f1 + (f2 - f1) * (t / T_trans)
+                
+                # Phase is the integral of 2*pi*f(t) dt.
+                # Integral of f(t) is: f1*t + (f2-f1)/2 * (t^2 / T_trans)
+                phase_increment = (
+                    2 * np.pi * (
+                        f1 * t_trans_vec 
+                        + (f2 - f1) * 0.5 * (t_trans_vec**2 / t_transition)
+                    )
+                )
+                
+                # Generate the transition signal
+                transition_signal = np.sin(phase_increment + current_phase)
+                all_samples.append(transition_signal)
+                
+                # Update phase for the next steady-state segment
+                if len(phase_increment) > 0:
+                    current_phase = (phase_increment[-1] + current_phase) % (2 * np.pi)
+            
+            else:
+                # If transition_duration is 0, the next segment starts immediately.
+                pass
+                
+    # 4. Concatenate all segments and transitions
+    if not all_samples:
+        return np.array([])
+        
+    final_signal = np.concatenate(all_samples)
+    
+    return final_signal
